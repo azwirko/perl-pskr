@@ -1,0 +1,79 @@
+PERL scripts for use with Pavel's FT8 8-band decoder for the Redpitaya.  
+
+https://github.com/pavel-demin/red-pitaya-notes/tree/develop/projects/sdr_transceiver_ft8
+
+https://github.com/pavel-demin/red-pitaya-notes/issues/689
+
+All these scripts buffer and cache decoded call signs 
+for 5 minutes before reporting them again.  This is adjustable at the 
+top of the scripts by changing variable $MINTIME = 5.  Since Pavel's 
+code decodes and prints on one minute intervals, all these utilities 
+print with the same limitation. 
+
+You will need to do the following to install and use the scripts.
+
+Step 1 - Install PERL on RP - SSH to RP and execute the following:
+Example:
+C:\Users\andyz> ssh root@rp-f055cc
+rp-f055cc:~# rw
+rp-f055cc:~# apk update
+rp-f055cc:~# apk add perl
+
+Step 2 - Copy PERL scripts from PC to RP
+Example:
+C:\Users\andyz> scp dxc.pl root@rp-f055cc:
+C:\Users\andyz> scp jtudp.pl root@rp-f055cc:
+C:\Users\andyz> scp pskr.pl root@rp-f055cc:
+
+Step 3 - Ensure scripts are executable
+rp-f055cc:~# chmod 755 *.pl
+rp-f055cc:~# ro
+
+Step 4 - Run one or more scripts on the RP
+
+Start DXCluster server (must supply your call and 6 digit grid)
+Example:
+rp-f055cc:~# ./dxc.pl k1ra fm18cr &
+
+From your PC connect to DXCluster server
+Example:
+C:\Users\andyz> telnet rp-f055cc 7373
+
+DX de K1RA-# FT8 Skimmer >
+DX de K1RA-#:    14074.0  UA4CCH       FT8  -8 dB DE 2391 Hz          1445Z
+DX de K1RA-#:    14074.0  K2WO         FT8  -5 dB DE  793 Hz EL98     1445Z
+DX de K1RA-#:    14074.0  W4PKU        FT8  -2 dB CQ 2802 Hz FM18     1445Z
+DX de K1RA-#:    14074.0  SP9DLY       FT8 -14 dB DE 2521 Hz          1445Z
+
+Stop DXCluster
+rp-f055cc:~# killall dxc.pl
+
+
+Start PSKReport uploader  (must supply your call and 6 digit grid)
+Example:
+rp-f055cc:~# ./pskr.pl k1ra fm18cr &
+
+Go to https://pskreporter.info/pskmap.html 
+Wait at least 5 minutes for first round of spots
+
+Stop PSKReporter uploader
+rp-f055cc:~# killall pskr.pl
+
+
+Start WSJT-X UDP broadcaster  (must supply your call, 6 digit grid and 
+destination IP and port of application to receive UDP)
+Example GridTracker running on 192.168.1.2 port 2237:
+rp-f055cc:~# ./jtudp.pl k1ra fm18cr 192.168.1.2 2237 &
+
+Watch GridTracker for new spots, once a minute
+
+Stop WSJT-X UDP broadcaster
+rp-f055cc:~# killall jtudp.pl
+
+
+Enjoy!
+
+73
+
+andyz - K1RA
+http://k1ra.us/
